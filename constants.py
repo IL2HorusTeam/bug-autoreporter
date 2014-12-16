@@ -30,3 +30,7 @@ class InvalidIssueLabels(Labels):
 class NewIssueLabels(Labels):
     BUG = Label('bug', 'e11d21')
     AUTO_REPORT = Label('auto-report', 'fbca04')
+
+
+SIMILAR_ISSUES_MIN_RATIO = 0.7
+SIMILAR_ISSUES_MAX_SUGGESTIONS = 5
