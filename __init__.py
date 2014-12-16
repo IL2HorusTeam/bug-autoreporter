@@ -6,7 +6,7 @@ Create bug issues on GitHub automatically when an exception occurs.
 import itertools
 import six
 
-from github import GitHub, ApiNotFoundError
+from github import GitHub
 from Levenshtein.StringMatcher import StringMatcher
 from operator import itemgetter
 
@@ -26,17 +26,18 @@ class BugAutoreporter(object):
         self.matcher = StringMatcher()
 
     def _ensure_labels_exist(self):
-        labels = itertools.chain(*[
+        known_labels = itertools.chain(*[
             container.constants()
             for container in (
                 DuplicateIssueLabels, InvalidIssueLabels, NewIssueLabels,
             )
         ])
+
         labels_api = self.api('labels')
-        for label in labels:
-            try:
-                labels_api(label.title).get()
-            except ApiNotFoundError:
+        existing_titles = map(lambda x: x['name'], labels_api.get())
+
+        for label in known_labels:
+            if label.title not in existing_titles:
                 labels_api.post(name=label.title, color=label.color)
 
     @property
