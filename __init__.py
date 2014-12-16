@@ -42,7 +42,7 @@ class BugAutoreporter(object):
 
     @property
     def existing_issues(self):
-        return self.api('issues').get()
+        return self.api('issues').get(state='all')
 
     def issue_exists(self, title):
         for issue in self.existing_issues:
