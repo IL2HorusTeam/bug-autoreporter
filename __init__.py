@@ -25,6 +25,18 @@ class BugAutoreporter(object):
 
         self.matcher = StringMatcher()
 
+    @property
+    def labels_api(self):
+        return self.api('labels')
+
+    @property
+    def issues_api(self):
+        return self.api('issues')
+
+    @property
+    def existing_issues(self):
+        return self.issues_api.get(state='all')
+
     def _ensure_labels_exist(self):
         known_labels = itertools.chain(*[
             container.constants()
@@ -32,23 +44,19 @@ class BugAutoreporter(object):
                 DuplicateIssueLabels, InvalidIssueLabels, NewIssueLabels,
             )
         ])
-
-        labels_api = self.api('labels')
-        existing_titles = map(lambda x: x['name'], labels_api.get())
+        existing_titles = map(lambda x: x['name'], self.labels_api.get())
 
         for label in known_labels:
             if label.title not in existing_titles:
-                labels_api.post(name=label.title, color=label.color)
-
-    @property
-    def existing_issues(self):
-        return self.api('issues').get(state='all')
+                self.labels_api.post(name=label.title, color=label.color)
 
     def issue_exists(self, title):
+        return self.get_issue(title) is not None
+
+    def get_issue(self, title):
         for issue in self.existing_issues:
-            if title == issue['title']:
-                return True
-        return False
+            if title.lower() == issue['title'].lower():
+                return issue
 
     def propose_similar_issues(self, title):
         title = six.text_type(title)
