@@ -50,9 +50,6 @@ class BugAutoreporter(object):
             if label.title not in existing_titles:
                 self.labels_api.post(name=label.title, color=label.color)
 
-    def issue_exists(self, title):
-        return self.get_issue(title) is not None
-
     def get_issue(self, title):
         for issue in self.existing_issues:
             if title.lower() == issue['title'].lower():
