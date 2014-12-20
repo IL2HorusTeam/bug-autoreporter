@@ -69,7 +69,7 @@ class BugReporter(object):
 
     def get_issue(self, title):
         """
-        Try to get non-dublicate with same title. Return dublicate or `None`
+        Try to get non-duplicate with same title. Return duplicate or `None`
         otherwise.
         """
         title = title.lower()
@@ -77,7 +77,7 @@ class BugReporter(object):
 
         for issue in self.existing_issues:
             if title == issue['title'].lower():
-                if self.is_dublicate(issue):
+                if self.is_duplicate(issue):
                     result = issue
                 else:
                     return issue
@@ -85,7 +85,7 @@ class BugReporter(object):
         return result
 
     @classmethod
-    def is_dublicate(cls, issue):
+    def is_duplicate(cls, issue):
         return cls.has_label(issue, DuplicateIssueLabels.titles())
 
     def _on_issue_exists(self, issue, reopen_comment):
