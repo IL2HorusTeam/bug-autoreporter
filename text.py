@@ -3,14 +3,13 @@
 import six
 
 
-def issue_number_link(issue):
-    return html_link(url=issue['html_url'],
-                     text="issue #{}".format(issue['number']))
+def issue_link(issue, show_title=False):
+    text = "issue #{}".format(issue['number'])
 
+    if show_title:
+        text += ": \"{}\"".format(issue['title'])
 
-def issue_link(issue):
-    return html_link(url=issue['html_url'],
-                     text=issue['title'])
+    return html_link(url=issue['html_url'], text=text)
 
 
 def html_link(url, text):
@@ -19,12 +18,12 @@ def html_link(url, text):
 
 def html_list(items):
     elements = [
-        "<ul>",
+        "<ol>",
     ]
     elements.extend([
         "<li>{}</li>".format(item) for item in items
     ])
-    elements.append("</ul>")
+    elements.append("</ol>")
     return ''.join(elements)
 
 
