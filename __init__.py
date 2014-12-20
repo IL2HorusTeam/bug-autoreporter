@@ -18,7 +18,7 @@ from .constants import (
 from .format import format_issue_link
 
 
-class BugAutoreporter(object):
+class BugReporter(object):
 
     def __init__(self, access_token, repo_owner, repo_name):
         gh = GitHub(access_token=access_token)
