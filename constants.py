@@ -32,5 +32,5 @@ class NewIssueLabels(Labels):
     AUTO_REPORT = Label('auto-report', 'fbca04')
 
 
-SIMILAR_ISSUES_MIN_RATIO = 0.7
+SIMILAR_ISSUES_MIN_RATIO = 0.6
 SIMILAR_ISSUES_MAX_SUGGESTIONS = 5

@@ -15,7 +15,7 @@ from .constants import (
     DuplicateIssueLabels, InvalidIssueLabels, NewIssueLabels,
     SIMILAR_ISSUES_MIN_RATIO, SIMILAR_ISSUES_MAX_SUGGESTIONS,
 )
-from .text import force_text, html_link, html_list, issue_link
+from .text import force_text
 
 
 class BugReporter(object):
@@ -54,19 +54,6 @@ class BugReporter(object):
             if label.title not in existing_titles:
                 self.labels_api.post(name=label.title, color=label.color)
 
-    def report_issue(self, title, description=None, reopen_comment=None):
-        issue = self.get_issue(title)
-        if issue:
-            result = self._on_issue_exists(issue, reopen_comment)
-        else:
-            result = self._report_new_issue(title, description)
-
-        similar_issues = self.propose_similar_issues(title)
-        if similar_issues:
-            result = result + "<br>" + similar_issues
-
-        return result
-
     def get_issue(self, title):
         """
         Try to get non-duplicate with same title. Return duplicate or `None`
@@ -88,22 +75,8 @@ class BugReporter(object):
     def is_duplicate(cls, issue):
         return cls.has_label(issue, DuplicateIssueLabels.titles())
 
-    def _on_issue_exists(self, issue, reopen_comment):
-        if issue['state'] == 'open':
-            return self._on_issue_is_already_open(issue)
-        else:
-            if self.can_be_reopened(issue):
-                return self._reopen_issue(issue, reopen_comment)
-            else:
-                return self._on_issue_cannot_be_reopened(issue)
-
-    @staticmethod
-    def _on_issue_is_already_open(issue):
-        return ("This case was already reported in the {}."
-                .format(issue_link(issue)))
-
     @classmethod
-    def can_be_reopened(cls, issue):
+    def is_valid(cls, issue):
         return not cls.has_label(issue, InvalidIssueLabels.titles())
 
     @staticmethod
@@ -112,19 +85,10 @@ class BugReporter(object):
         searched_labels = set(labels)
         return bool(issue_labels.intersection(searched_labels))
 
-    def _reopen_issue(self, issue, reopen_comment):
+    def reopen_issue(self, issue, comment=None):
         issue_api = self.issues_api(issue['number'])
         issue_api.patch(state='open')
-
-        ending = "It was reopened"
-
-        if reopen_comment:
-            comment = self._post_comment(issue_api, reopen_comment)
-            if comment:
-                ending = html_link(url=comment['html_url'], text=ending)
-
-        return ("Seems like this case was fixed in the {} earlier. {}."
-                .format(issue_link(issue), ending))
+        return comment and self._post_comment(issue_api, comment)
 
     @classmethod
     def _post_comment(cls, issue_api, comment):
@@ -135,17 +99,10 @@ class BugReporter(object):
             comment_body = '\n'.join(body_chunks)
             return issue_api('comments').post(body=comment_body)
 
-    def _on_issue_cannot_be_reopened(self, issue):
-        return ("This is a known case which was reported in the {}. However, "
-                "it's not going to be fixed."
-                .format(issue_link(issue)))
-
-    def _report_new_issue(self, title, description):
+    def report_issue(self, title, description=None):
         body = self._get_issue_body(description)
         labels = NewIssueLabels.titles()
-        issue = self.issues_api.post(title=title, body=body, labels=labels)
-        return ("This case was reported in a new {}."
-                .format(issue_link(issue)))
+        return self.issues_api.post(title=title, body=body, labels=labels)
 
     @classmethod
     def _get_issue_body(cls, description):
@@ -168,12 +125,6 @@ class BugReporter(object):
             "Traceback:",
             "```\n{}```".format(the_traceback),
         ])
-
-    def propose_similar_issues(self, title):
-        issues = self.get_similar_issues(title)
-        if issues:
-            links = map(lambda i: issue_link(i, show_title=True), issues)
-            return "<span>Similar issues</span>:<br>" + html_list(links)
 
     def get_similar_issues(self, title):
         title = six.text_type(title).lower()
