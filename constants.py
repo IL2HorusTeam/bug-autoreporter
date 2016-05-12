@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from candv import SimpleConstant, Constants, with_constant_class
 
