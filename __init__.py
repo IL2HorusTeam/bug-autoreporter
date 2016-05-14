@@ -146,3 +146,11 @@ class BugReporter(object):
         results = sorted(results, key=key)[:SIMILAR_ISSUES_MAX_SUGGESTIONS]
 
         return [issue for issue, ratio in results]
+
+    def shorten_issue(self, issue):
+        return {
+            'number': issue['number'],
+            'url': issue['html_url'],
+            'state': issue['state'],
+            'is_valid': self.is_valid(issue),
+        }
