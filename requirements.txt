@@ -1,6 +1,6 @@
+aiohttp==2.0.6
 candv>=1.2.0
+fuzzywuzzy==0.15.0
 python-Levenshtein==0.12.0
-six>=1.6.1
-
-# Waiting for githubpy==1.1.1 to be released
--e git+https://github.com/michaelliao/githubpy.git#egg=githubpy
+yarl==0.10.0
+ujson==1.35
