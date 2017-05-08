@@ -1,4 +1,4 @@
-aiohttp==2.0.6
+aiohttp==2.0.7
 candv>=1.2.0
 fuzzywuzzy==0.15.0
 python-Levenshtein==0.12.0
